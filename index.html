@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Question</title>
+    <style>
+        /* --- CSS STYLING --- */
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&family=Great+Vibes&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Prevent scrolling */
+            background-color: #ffd1dc; /* Soft Pink */
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Heart Animation Container */
+        #heart-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            transition: opacity 0.5s;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff4d6d;
+            opacity: 0;
+            animation: floatUp linear forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        /* POPPING IMAGES STYLE */
+        .pop-image {
+            position: fixed;
+            z-index: 5;
+            border: 5px solid white;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            width: 200px; 
+            height: auto;
+            transform: scale(0);
+            animation: popInImage 0.5s forwards;
+            object-fit: cover;
+        }
+
+        @keyframes popInImage {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* WRAPPERS */
+        .screen {
+            position: relative;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            transition: opacity 0.5s;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 1s ease-out;
+            pointer-events: none;
+        }
+
+        /* CARDS */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #fff;
+            margin: 20px 0;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            color: #d63384;
+            margin-bottom: 20px;
+        }
+
+        /* FANCY TEXT */
+        .fancy-msg {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            color: #d63384;
+            text-shadow: 2px 2px white;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        /* PROPOSAL SCREEN */
+        .proposal-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 77, 109, 0.5);
+            text-align: center;
+            z-index: 30;
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .proposal-text {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .proposal-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        /* BUTTONS */
+        button.action-btn {
+            background-color: #ff4d6d; color: white; border: none; padding: 12px 30px;
+            border-radius: 50px; font-size: 16px; cursor: pointer; transition: transform 0.2s, background 0.3s;
+            font-weight: bold; margin-top: 10px; width: 100%;
+        }
+
+        button.yes-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px #28a745;
+            animation: glowing 1.5s infinite alternate;
+            z-index: 31;
+        }
+
+        @keyframes glowing {
+            from { box-shadow: 0 0 10px #28a745; transform: scale(1); }
+            to { box-shadow: 0 0 25px #28a745; transform: scale(1.1); }
+        }
+
+        button.no-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease; 
+            z-index: 31;
+        }
+
+        /* QUIZ STYLES */
+        .quiz-container { text-align: left; max-height: 80vh; overflow-y: auto; }
+        .quiz-title { font-family: 'Great Vibes', cursive; font-size: 2.5rem; color: #d63384; text-align: center; margin-bottom: 1rem; }
+        .question-block { margin-bottom: 15px; }
+        .question-label { font-weight: 600; color: #555; display: block; margin-bottom: 5px; font-size: 0.9rem; }
+        input { width: 100%; padding: 10px; border: 2px solid #ffb3c1; border-radius: 10px; box-sizing: border-box; outline: none; font-size: 14px; }
+        input.correct { border-color: #28a745 !important; background-color: #e6ffec !important; }
+        input.wrong { border-color: #dc3545 !important; background-color: #ffe6e6 !important; }
+        .correction-text { display: none; color: #dc3545; font-size: 0.8rem; margin-top: 2px; font-weight: bold; }
+
+        /* CRASH ERROR STYLES */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 100; justify-content: center; align-items: center; }
+        .modal { background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 80%; animation: popIn 0.3s ease; }
+        .error-modal { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.2); text-align: center; border: 1px solid #ccc; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="heart-container"></div>
+
+    <div class="screen" id="login-screen">
+        <div class="card">
+            <h1>Happy Valentine's ❤️</h1>
+            <label style="display:block; margin-bottom:10px; font-weight:600;">Please enter your "ABSOLUTE" boyfriend's name?</label>
+            <input type="text" id="bfNameLogin" placeholder="Type name here...">
+            <button class="action-btn" onclick="handleLogin()">Enter</button>
+        </div>
+    </div>
+
+    <div class="screen hidden" id="transition-screen">
+        <div class="fancy-msg">I love you. But !</div>
+    </div>
+
+    <div class="screen hidden" id="quiz-screen">
+        <div class="card quiz-container">
+            <h2 class="quiz-title">Your Boyfriend Q&A</h2>
+            <div id="final-score-area" style="font-weight:bold; color:#d63384; margin-bottom:10px; text-align:center;"></div>
+            <div class="question-block"><label class="question-label">1. Your Boyfriend's name with initials? (format:A B C Clarke)</label><input type="text" id="q1"><div class="correction-text" id="ans1">Correct: B A A V Karunathilake</div></div>
+            <div class="question-block"><label class="question-label">2. What is your Boyfriend's birth date? (format:DD/MM/YYYY)</label><input type="text" id="q2"><div class="correction-text" id="ans2">Correct: 01/02/2000</div></div>
+            <div class="question-block"><label class="question-label">3. What is your name for him?</label><input type="text" id="q3"><div class="correction-text" id="ans3">Correct: Denethi</div></div>
+            <div class="question-block"><label class="question-label">4. What is his favourite food? (after 2022)?</label><input type="text" id="q4"><div class="correction-text" id="ans4">Correct: Denethi (or Me)</div></div>
+            <div class="question-block"><label class="question-label">5. What is his most favourite part of yours?</label><input type="text" id="q5"><div class="correction-text" id="ans5">Correct: Boobs</div></div>
+            <div class="question-block"><label class="question-label">6. How long is it reach inside you?</label><input type="text" id="q6"><div class="correction-text" id="ans6">Correct: 6 inches</div></div>
+            <div class="question-block"><label class="question-label">7. What is his blood group?</label><input type="text" id="q7"><div class="correction-text" id="ans7">Correct: B+</div></div>
+            <div class="question-block"><label class="question-label">8. How you introduce him to others?</label><input type="text" id="q8"><div class="correction-text" id="ans8">Correct: kathaya</div></div>
+            <button class="action-btn" id="doneBtn" onclick="validateForm()">Done</button>
+        </div>
+    </div>
+
+    <div class="screen hidden" id="cuteness-screen">
+        <div class="fancy-msg" id="cuteness-msg" style="font-size: 4rem;">System crashed because<br><span style="font-family:'Great Vibes', cursive;">cuteness overloaded</span> ❤️</div>
+    </div>
+
+    <div class="screen hidden" id="proposal-screen">
+        <div class="proposal-box">
+            <p class="proposal-text">Will you be my forever, 24/7*260 (yeah 260, im not working on weekends) valentine??</p>
+            <div class="proposal-buttons">
+                <button class="yes-btn" onclick="sheSaidYes()">YES</button>
+                <button class="no-btn" id="noBtn" onmouseover="moveButton()" onclick="moveButton()">NO</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="genericModal"><div class="modal"><p id="modalText"></p><button class="action-btn" onclick="closeModal('genericModal')">Ok</button></div></div>
+    <div class="modal-overlay" id="resultModal"><div class="modal"><p id="percentageText" style="font-size: 1.2rem; font-weight: bold; color: #d63384;"></p><button class="action-btn" onclick="showReview()">Ok</button></div></div>
+    <div class="modal-overlay" id="crashModal" style="background: white;"><div class="error-modal"><h3 style="margin-top:0; color:#333;">System Error</h3><p>Please Wait! System crashed.</p><div class="loader"></div></div></div>
+
+    <script>
+        /* --- CONFIGURATION --- */
+        // !!! MAKE SURE THIS MATCHES YOUR IMAGE FOLDER NAMES !!!
+        const imageUrls = [
+            "images/img1.jpg", 
+            "images/img2.jpg", 
+            "images/img3.jpg"
+        ];
+
+        const answersConfig = {
+            q1: ["b a a v karunathilake"], q2: ["01/02/2000"], q3: ["denethi"], q4: ["denethi", "me"],
+            q5: ["boobs"], q6: ["6 inches"], q7: ["b+", "b positive"], q8: ["kathaya"]
+        };
+        let calculatedScore = 0;
+        const totalQuestions = 8;
+
+        /* --- HEART ANIMATION --- */
+        function createHeart() {
+            const heart = document.createElement('div'); heart.classList.add('heart');
+            heart.innerHTML = '❤'; heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = Math.random() * 20 + 10 + 'px';
+            heart.style.animationDuration = Math.random() * 3 + 3 + 's'; 
+            document.getElementById('heart-container').appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 6000);
+        }
+        setInterval(createHeart, 300);
+
+        /* --- MAIN LOGIC FLOW --- */
+        
+        function handleLogin() {
+            const input = document.getElementById('bfNameLogin').value.trim().toLowerCase();
+            if (input === "asirimath") {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('transition-screen').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('transition-screen').classList.add('hidden');
+                    document.getElementById('quiz-screen').classList.remove('hidden');
+                }, 3000);
+            } else { showModal("U nemei hari miniha"); }
+        }
+        // Login Keypress
+        document.getElementById("bfNameLogin").addEventListener("keypress", function(e) { if (e.key === "Enter") handleLogin(); });
+
+
+        // Quiz Logic
+        function validateForm() {
+            let allFilled = true;
+            for (let i = 1; i <= 8; i++) { if (!document.getElementById(`q${i}`).value.trim() || document.getElementById(`q${i}`).value === "-") allFilled = false; }
+            if (!allFilled) { showModal("to proceed you must answer these questions"); return; }
+
+            calculatedScore = 0;
+            for (let i = 1; i <= 8; i++) {
+                if (answersConfig[`q${i}`].includes(document.getElementById(`q${i}`).value.trim().toLowerCase())) calculatedScore++;
+            }
+            document.getElementById('percentageText').innerText = `You know him for ${Math.round((calculatedScore / totalQuestions) * 100)}%`;
+            document.getElementById('resultModal').style.display = 'flex';
+        }
+
+        function showReview() {
+            document.getElementById('resultModal').style.display = 'none';
+            document.getElementById('final-score-area').innerText = `Final Score: ${calculatedScore}/${totalQuestions}`;
+            for (let i = 1; i <= 8; i++) {
+                const el = document.getElementById(`q${i}`);
+                const valid = answersConfig[`q${i}`];
+                el.disabled = true;
+                if (valid.includes(el.value.trim().toLowerCase())) el.classList.add('correct');
+                else { el.classList.add('wrong'); document.getElementById(`ans${i}`).style.display = 'block'; }
+            }
+            document.querySelector('.quiz-container').scrollTop = 0;
+            const btn = document.getElementById('doneBtn');
+            btn.innerText = "Next"; btn.disabled = false; btn.style.backgroundColor = "#ff4d6d";
+            btn.onclick = triggerCrashSequence;
+        }
+
+        /* --- CRASH & IMAGE SEQUENCE --- */
+        function triggerCrashSequence() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('heart-container').style.opacity = '0';
+            document.body.style.backgroundColor = 'white';
+            document.getElementById('crashModal').style.display = 'flex';
+            setTimeout(resolveCrash, 3000);
+        }
+
+        function resolveCrash() {
+            document.getElementById('crashModal').style.display = 'none';
+            document.body.style.backgroundColor = '#ffd1dc';
+            document.getElementById('heart-container').style.opacity = '1';
+            document.getElementById('cuteness-screen').classList.remove('hidden');
+
+            setTimeout(() => spawnImage(imageUrls[0]), 500);
+            setTimeout(() => spawnImage(imageUrls[1]), 2500);
+            setTimeout(() => spawnImage(imageUrls[2]), 4500);
+            setTimeout(startScreenFill, 6500);
+        }
+
+        function spawnImage(src) {
+            const img = document.createElement('img');
+            img.src = src;
+            img.classList.add('pop-image');
+            
+            // Random Position (Keep somewhat away from edges)
+            const x = Math.random() * (window.innerWidth - 200); 
+            const y = Math.random() * (window.innerHeight - 300);
+            
+            img.style.left = `${x}px`;
+            img.style.top = `${y}px`;
+            
+            document.body.appendChild(img);
+        }
+
+        function startScreenFill() {
+            let count = 0;
+            const maxImages = 40; 
+            const interval = setInterval(() => {
+                const randomSrc = imageUrls[Math.floor(Math.random() * imageUrls.length)];
+                spawnImage(randomSrc);
+                count++;
+
+                if (count >= maxImages) {
+                    clearInterval(interval);
+                    setTimeout(showProposal, 1000);
+                }
+            }, 200);
+        }
+
+        function showProposal() {
+            // Fade out the text but keep images
+            const cutenessMsg = document.getElementById('cuteness-msg');
+            cutenessMsg.classList.add('fade-out');
+
+            setTimeout(() => {
+                document.getElementById('cuteness-screen').classList.add('hidden');
+                document.getElementById('proposal-screen').classList.remove('hidden');
+            }, 1000);
+        }
+
+        /* --- RUNAWAY BUTTON --- */
+        function moveButton() {
+            const btn = document.getElementById('noBtn');
+            
+            // 1. Force fixed positioning so it can go anywhere
+            btn.style.position = 'fixed';
+            
+            // 2. Calculate random X/Y within window bounds (minus button size)
+            const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btn.offsetHeight);
+
+            // 3. Apply
+            btn.style.left = `${x}px`;
+            btn.style.top = `${y}px`;
+        }
+
+        function sheSaidYes() {
+            alert("I knew it! Love you! ❤️");
+            // This reloads the page, clearing all images and resetting to the start screen
+            location.reload();
+        }
+
+        /* --- UTILS --- */
+        function showModal(msg) { document.getElementById('modalText').innerText = msg; document.getElementById('genericModal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    </script>
+</body>
+</html>
